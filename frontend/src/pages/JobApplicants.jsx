@@ -7,6 +7,7 @@ export default function JobApplicants() {
     const [jobData, setJobData] = useState(null);
     const [selectedApplicant, setSelectedApplicant] = useState(null);
     const [message, setMessage] = useState('');
+    const [minScore, setMinScore] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => { fetchApplicants(); }, []);
@@ -39,6 +40,8 @@ export default function JobApplicants() {
         return styles.badgePending;
     };
 
+    const filteredApplicants = jobData ? jobData.applicants.filter(a => a.score >= minScore) : [];
+
     return (
         <div style={styles.page}>
             <div style={styles.header}>
@@ -53,18 +56,40 @@ export default function JobApplicants() {
                 {jobData && (
                     <>
                         <div style={styles.jobHeader}>
-                            <h3 style={styles.jobTitle}>{jobData.job_title}</h3>
-                            <p style={styles.jobMeta}>{jobData.applicants.length} applicant{jobData.applicants.length !== 1 ? 's' : ''} — ranked by match score</p>
+                            <div style={styles.jobHeaderTop}>
+                                <div>
+                                    <h3 style={styles.jobTitle}>{jobData.job_title}</h3>
+                                    <p style={styles.jobMeta}>
+                                        {filteredApplicants.length} of {jobData.applicants.length} applicant{jobData.applicants.length !== 1 ? 's' : ''} — ranked by match score
+                                    </p>
+                                </div>
+                                <div style={styles.filterBox}>
+                                    <label style={styles.filterLabel}>Minimum Score Filter</label>
+                                    <div style={styles.filterRow}>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="100"
+                                            value={minScore}
+                                            onChange={e => setMinScore(Number(e.target.value))}
+                                            style={styles.slider}
+                                        />
+                                        <span style={styles.filterValue}>{minScore}%</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {message && <p style={styles.message}>{message}</p>}
 
                         <div style={styles.layout}>
                             <div style={styles.list}>
-                                {jobData.applicants.length === 0 && (
-                                    <div style={styles.empty}>No applicants yet.</div>
+                                {filteredApplicants.length === 0 && (
+                                    <div style={styles.empty}>
+                                        {minScore > 0 ? `No applicants above ${minScore}% match score.` : 'No applicants yet.'}
+                                    </div>
                                 )}
-                                {jobData.applicants.map((a) => (
+                                {filteredApplicants.map((a) => (
                                     <div
                                         key={a.id}
                                         style={{
@@ -198,8 +223,14 @@ const styles = {
     exportBtn: { backgroundColor: '#27ae60', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer' },
     container: { maxWidth: '1100px', margin: '32px auto', padding: '0 24px' },
     jobHeader: { marginBottom: '24px' },
+    jobHeaderTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' },
     jobTitle: { margin: '0 0 4px', color: '#2c3e50', fontSize: '22px' },
     jobMeta: { margin: 0, color: '#888', fontSize: '14px' },
+    filterBox: { backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', minWidth: '260px' },
+    filterLabel: { display: 'block', fontSize: '13px', color: '#555', fontWeight: '500', marginBottom: '8px' },
+    filterRow: { display: 'flex', alignItems: 'center', gap: '12px' },
+    slider: { flex: 1, accentColor: '#3498db' },
+    filterValue: { fontSize: '14px', fontWeight: '700', color: '#3498db', minWidth: '40px' },
     message: { color: 'green', marginBottom: '12px' },
     layout: { display: 'flex', gap: '24px', alignItems: 'flex-start' },
     list: { flex: 1, minWidth: 0 },
