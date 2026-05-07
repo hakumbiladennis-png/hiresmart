@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from .serializers import RegisterSerializer
 from .models import JobPost, Applicant
-from .nlp_utils import extract_text_from_file, calculate_similarity
+from .nlp_utils import extract_text_from_file, calculate_similarity, detect_bias
 import csv
 from django.http import HttpResponse
 
@@ -23,6 +23,9 @@ class JobPostView(APIView):
 
     def post(self, request):
         data = request.data
+        job_text = f"{data.get('title', '')} {data.get('description', '')} {data.get('required_skills', '')}"
+        bias_warnings = detect_bias(job_text)
+
         job = JobPost.objects.create(
             recruiter=request.user,
             title=data.get('title'),
@@ -32,11 +35,20 @@ class JobPostView(APIView):
             location=data.get('location', ''),
             deadline=data.get('deadline'),
         )
-        return Response({
+
+        response_data = {
             'id': job.id,
             'public_id': str(job.public_id),
-            'message': 'Job created successfully'
-        }, status=201)
+            'message': 'Job created successfully',
+        }
+
+        if bias_warnings:
+            response_data['bias_warnings'] = bias_warnings
+            response_data['bias_detected'] = True
+        else:
+            response_data['bias_detected'] = False
+
+        return Response(response_data, status=201)
 
     def get(self, request):
         jobs = JobPost.objects.filter(recruiter=request.user).order_by('-created_at')
@@ -234,7 +246,9 @@ class ExportApplicantsView(APIView):
             response['Content-Disposition'] = f'attachment; filename="{job.title}_applicants.csv"'
 
             writer = csv.writer(response)
-            writer.writerow(['Rank', 'Name', 'Email', 'Phone', 'Location', 'Education', 'Experience (Years)', 'Current Title', 'Match Score (%)', 'Matched Skills', 'Status', 'Applied At'])
+            writer.writerow(['Rank', 'Name', 'Email', 'Phone', 'Location', 'Education',
+                           'Experience (Years)', 'Current Title', 'Match Score (%)',
+                           'Matched Skills', 'Status', 'Applied At'])
 
             for i, a in enumerate(applicants):
                 writer.writerow([

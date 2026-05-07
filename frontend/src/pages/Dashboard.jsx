@@ -12,6 +12,9 @@ export default function Dashboard() {
     const [location, setLocation] = useState('');
     const [deadline, setDeadline] = useState('');
     const [message, setMessage] = useState('');
+    const [biasWarnings, setBiasWarnings] = useState([]);
+    const [showBiasModal, setShowBiasModal] = useState(false);
+    const [messageType, setMessageType] = useState('success');
     const navigate = useNavigate();
 
     useEffect(() => { fetchJobs(); }, []);
@@ -28,6 +31,7 @@ export default function Dashboard() {
     const createJob = async () => {
         if (!title || !description || !requiredSkills || !deadline) {
             setMessage('Please fill in all required fields.');
+            setMessageType('error');
             return;
         }
         try {
@@ -39,13 +43,21 @@ export default function Dashboard() {
                 location,
                 deadline,
             });
+
+            if (res.data.bias_detected) {
+                setBiasWarnings(res.data.bias_warnings);
+                setShowBiasModal(true);
+            }
+
             setMessage('Job created successfully!');
+            setMessageType('success');
             setShowForm(false);
             setTitle(''); setDescription(''); setRequiredSkills('');
             setRequiredExperience(0); setLocation(''); setDeadline('');
             fetchJobs();
         } catch (err) {
             setMessage('Failed to create job. Please try again.');
+            setMessageType('error');
         }
     };
 
@@ -68,6 +80,38 @@ export default function Dashboard() {
 
     return (
         <div style={styles.page}>
+            {showBiasModal && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modal}>
+                        <div style={styles.modalHeader}>
+                            <h3 style={styles.modalTitle}>⚠️ Bias Warning Detected</h3>
+                        </div>
+                        <p style={styles.modalText}>
+                            Your job post was created successfully, but the following potentially
+                            biased language was detected. Consider revising your job description
+                            to ensure fair and inclusive hiring.
+                        </p>
+                        {biasWarnings.map((warning, i) => (
+                            <div key={i} style={styles.warningBox}>
+                                <p style={styles.warningCategory}>
+                                    {warning.category.replace('_', ' ').toUpperCase()} BIAS
+                                </p>
+                                <div style={styles.termsList}>
+                                    {warning.terms.map((term, j) => (
+                                        <span key={j} style={styles.termBadge}>{term}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                        <button
+                            style={styles.modalBtn}
+                            onClick={() => setShowBiasModal(false)}>
+                            I Understand, Continue
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div style={styles.header}>
                 <h2 style={styles.logo}>HireSmart</h2>
                 <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
@@ -81,7 +125,11 @@ export default function Dashboard() {
                     </button>
                 </div>
 
-                {message && <p style={styles.message}>{message}</p>}
+                {message && (
+                    <p style={messageType === 'error' ? styles.errorMsg : styles.message}>
+                        {message}
+                    </p>
+                )}
 
                 {showForm && (
                     <div style={styles.form}>
@@ -163,6 +211,7 @@ const styles = {
     label: { display: 'block', fontSize: '13px', color: '#666', marginBottom: '4px' },
     submitBtn: { backgroundColor: '#2ecc71', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' },
     message: { color: 'green', marginBottom: '12px' },
+    errorMsg: { color: 'red', marginBottom: '12px' },
     empty: { backgroundColor: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center', color: '#888' },
     jobCard: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', marginBottom: '16px', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' },
     jobTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' },
@@ -175,4 +224,14 @@ const styles = {
     copyBtn: { backgroundColor: '#9b59b6', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
     closeBtn: { backgroundColor: '#e74c3c', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
     openBtn: { backgroundColor: '#2ecc71', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
+    modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
+    modal: { backgroundColor: 'white', padding: '32px', borderRadius: '16px', width: '480px', maxWidth: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' },
+    modalHeader: { display: 'flex', alignItems: 'center', marginBottom: '16px' },
+    modalTitle: { margin: 0, color: '#e67e22', fontSize: '18px' },
+    modalText: { color: '#555', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' },
+    warningBox: { backgroundColor: '#fef9e7', border: '1px solid #f39c12', borderRadius: '8px', padding: '12px', marginBottom: '12px' },
+    warningCategory: { margin: '0 0 8px', color: '#e67e22', fontWeight: '600', fontSize: '12px' },
+    termsList: { display: 'flex', flexWrap: 'wrap', gap: '6px' },
+    termBadge: { backgroundColor: '#fadbd8', color: '#e74c3c', padding: '3px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: '500' },
+    modalBtn: { width: '100%', padding: '12px', backgroundColor: '#e67e22', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', marginTop: '8px' },
 };
