@@ -15,9 +15,13 @@ export default function Dashboard() {
     const [biasWarnings, setBiasWarnings] = useState([]);
     const [showBiasModal, setShowBiasModal] = useState(false);
     const [messageType, setMessageType] = useState('success');
+    const [stats, setStats] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => { fetchJobs(); }, []);
+    useEffect(() => {
+        fetchJobs();
+        fetchStats();
+     }, []);
 
     const fetchJobs = async () => {
         try {
@@ -27,7 +31,14 @@ export default function Dashboard() {
             navigate('/');
         }
     };
-
+    const fetchStats = async () => {
+    try {
+        const res = await API.get('stats/');
+        setStats(res.data);
+    } catch (err) {
+        console.log('Stats error:', err);
+    }
+    };
     const createJob = async () => {
         if (!title || !description || !requiredSkills || !deadline) {
             setMessage('Please fill in all required fields.');
@@ -118,6 +129,30 @@ export default function Dashboard() {
             </div>
 
             <div style={styles.container}>
+                {stats && (
+    <div style={styles.statsRow}>
+        <div style={styles.statCard}>
+            <p style={styles.statNum}>{stats.total_jobs}</p>
+            <p style={styles.statLabel}>Total Jobs</p>
+        </div>
+        <div style={styles.statCard}>
+            <p style={styles.statNum}>{stats.open_jobs}</p>
+            <p style={styles.statLabel}>Open Jobs</p>
+        </div>
+        <div style={styles.statCard}>
+            <p style={styles.statNum}>{stats.total_applicants}</p>
+            <p style={styles.statLabel}>Total Applicants</p>
+        </div>
+        <div style={styles.statCard}>
+            <p style={styles.statNum}>{stats.shortlisted}</p>
+            <p style={styles.statLabel}>Shortlisted</p>
+        </div>
+        <div style={styles.statCard}>
+            <p style={styles.statNum}>{stats.pending}</p>
+            <p style={styles.statLabel}>Pending Review</p>
+        </div>
+    </div>
+)}
                 <div style={styles.topBar}>
                     <h3 style={styles.sectionTitle}>Your Job Posts</h3>
                     <button style={styles.newJobBtn} onClick={() => setShowForm(!showForm)}>
@@ -167,6 +202,9 @@ export default function Dashboard() {
                                     📍 {job.location || 'Location not specified'} &nbsp;|&nbsp;
                                     📅 Deadline: {job.deadline} &nbsp;|&nbsp;
                                     👥 {job.applicant_count} applicant{job.applicant_count !== 1 ? 's' : ''}
+                                    {job.applicant_count > 0 && (
+                                 <span> &nbsp;|&nbsp; 🏆 Top Score: <strong>{job.top_score}%</strong></span>
+                                 )}
                                 </p>
                             </div>
                             <span style={job.status === 'open' ? styles.badgeOpen : styles.badgeClosed}>
@@ -234,4 +272,8 @@ const styles = {
     termsList: { display: 'flex', flexWrap: 'wrap', gap: '6px' },
     termBadge: { backgroundColor: '#fadbd8', color: '#e74c3c', padding: '3px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: '500' },
     modalBtn: { width: '100%', padding: '12px', backgroundColor: '#e67e22', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', marginTop: '8px' },
+    statsRow: { display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' },
+    statCard: { flex: 1, minWidth: '120px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' },
+    statNum: { margin: '0 0 4px', fontSize: '28px', fontWeight: '700', color: '#2c3e50' },
+    statLabel: { margin: 0, fontSize: '12px', color: '#888', fontWeight: '500' },
 };

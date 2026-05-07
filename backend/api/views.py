@@ -54,7 +54,11 @@ class JobPostView(APIView):
         jobs = JobPost.objects.filter(recruiter=request.user).order_by('-created_at')
         data = []
         for j in jobs:
-            applicant_count = j.applicants.count()
+            applicants = j.applicants.all()
+            applicant_count = applicants.count()
+            top_score = 0.0
+            if applicant_count > 0:
+                top_score = round(max(a.similarity_score for a in applicants) * 100, 1)
             data.append({
                 'id': j.id,
                 'title': j.title,
@@ -63,6 +67,7 @@ class JobPostView(APIView):
                 'status': j.status,
                 'public_id': str(j.public_id),
                 'applicant_count': applicant_count,
+                'top_score': top_score,
             })
         return Response(data)
 
@@ -272,3 +277,31 @@ class ExportApplicantsView(APIView):
             return response
         except JobPost.DoesNotExist:
             return Response({'error': 'Job not found'}, status=404)
+class DashboardStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        jobs = JobPost.objects.filter(recruiter=request.user)
+        total_jobs = jobs.count()
+        open_jobs = jobs.filter(status='open').count()
+        closed_jobs = jobs.filter(status='closed').count()
+
+        all_applicants = Applicant.objects.filter(job__recruiter=request.user)
+        total_applicants = all_applicants.count()
+        shortlisted = all_applicants.filter(status='shortlisted').count()
+        rejected = all_applicants.filter(status='rejected').count()
+        pending = all_applicants.filter(status='pending').count()
+
+        scores = [a.similarity_score for a in all_applicants]
+        avg_score = round((sum(scores) / len(scores)) * 100, 1) if scores else 0
+
+        return Response({
+            'total_jobs': total_jobs,
+            'open_jobs': open_jobs,
+            'closed_jobs': closed_jobs,
+            'total_applicants': total_applicants,
+            'shortlisted': shortlisted,
+            'rejected': rejected,
+            'pending': pending,
+            'avg_score': avg_score,
+        })

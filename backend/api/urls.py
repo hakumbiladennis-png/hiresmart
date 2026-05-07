@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     RegisterView, JobPostView, JobPostDetailView,
     PublicJobView, ApplyView, ApplicantListView,
-    ApplicantDetailView, ExportApplicantsView
+    ApplicantDetailView, ExportApplicantsView, DashboardStatsView
 )
 
 urlpatterns = [
@@ -17,4 +17,5 @@ urlpatterns = [
     path('applicants/<int:applicant_id>/', ApplicantDetailView.as_view()),
     path('apply/<uuid:public_id>/', PublicJobView.as_view()),
     path('apply/<uuid:public_id>/submit/', ApplyView.as_view()),
+    path('stats/', DashboardStatsView.as_view()),
 ]
