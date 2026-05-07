@@ -8,6 +8,8 @@ export default function JobApplicants() {
     const [selectedApplicant, setSelectedApplicant] = useState(null);
     const [message, setMessage] = useState('');
     const [minScore, setMinScore] = useState(0);
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkAction, setBulkAction] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => { fetchApplicants(); }, []);
@@ -33,7 +35,33 @@ export default function JobApplicants() {
     const exportCSV = () => {
         window.open(`http://127.0.0.1:8000/api/jobs/${jobId}/export/`, '_blank');
     };
+    const toggleSelect = (id) => {
+    setSelectedIds(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+};
 
+const selectAll = () => {
+    if (selectedIds.length === filteredApplicants.length) {
+        setSelectedIds([]);
+    } else {
+        setSelectedIds(filteredApplicants.map(a => a.id));
+    }
+};
+
+const applyBulkAction = async () => {
+    if (!bulkAction || selectedIds.length === 0) {
+        alert('Please select candidates and choose an action.');
+        return;
+    }
+    for (const id of selectedIds) {
+        await API.patch(`applicants/${id}/`, { status: bulkAction });
+    }
+    setMessage(`${selectedIds.length} candidate(s) marked as ${bulkAction}!`);
+    setSelectedIds([]);
+    setBulkAction('');
+    fetchApplicants();
+};
     const getStatusStyle = (status) => {
         if (status === 'shortlisted') return styles.badgeShortlisted;
         if (status === 'rejected') return styles.badgeRejected;
@@ -81,6 +109,37 @@ export default function JobApplicants() {
                         </div>
 
                         {message && <p style={styles.message}>{message}</p>}
+                        {filteredApplicants.length > 0 && (
+                            <div style={styles.bulkBar}>
+                                <div style={styles.bulkLeft}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds.length === filteredApplicants.length && filteredApplicants.length > 0}
+                                        onChange={selectAll}
+                                        style={styles.checkbox}
+                                    />
+                                    <span style={styles.bulkCount}>
+                                        {selectedIds.length > 0 ? `${selectedIds.length} selected` : 'Select all'}
+                                    </span>
+                                </div>
+                                {selectedIds.length > 0 && (
+                                    <div style={styles.bulkRight}>
+                                        <select
+                                            style={styles.bulkSelect}
+                                            value={bulkAction}
+                                            onChange={e => setBulkAction(e.target.value)}>
+                                            <option value="">Choose action...</option>
+                                            <option value="shortlisted">Shortlist Selected</option>
+                                            <option value="rejected">Reject Selected</option>
+                                            <option value="pending">Reset to Pending</option>
+                                        </select>
+                                        <button style={styles.bulkBtn} onClick={applyBulkAction}>
+                                            Apply to {selectedIds.length} candidate{selectedIds.length !== 1 ? 's' : ''}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         <div style={styles.layout}>
                             <div style={styles.list}>
@@ -97,7 +156,15 @@ export default function JobApplicants() {
                                             ...(selectedApplicant?.id === a.id ? styles.selectedCard : {})
                                         }}
                                         onClick={() => setSelectedApplicant(a)}>
-                                        <div style={styles.cardTop}>
+                                        <div style={styles.cardCheck}>
+                                             <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.includes(a.id)}
+                                                    onChange={(e) => { e.stopPropagation(); toggleSelect(a.id); }}
+                                                    style={styles.checkbox}
+                                                />
+                                            </div>
+                                            <div style={styles.cardTop}>
                                             <div>
                                                 <p style={styles.rank}>#{a.rank}</p>
                                                 <p style={styles.name}>{a.full_name}</p>
@@ -272,4 +339,12 @@ const styles = {
     shortlistBtn: { backgroundColor: '#2ecc71', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
     rejectBtn: { backgroundColor: '#e74c3c', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
     pendingBtn: { backgroundColor: '#95a5a6', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
+    bulkBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '12px 16px', borderRadius: '10px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexWrap: 'wrap', gap: '8px' },
+    bulkLeft: { display: 'flex', alignItems: 'center', gap: '10px' },
+    bulkRight: { display: 'flex', alignItems: 'center', gap: '8px' },
+    bulkCount: { fontSize: '13px', color: '#555', fontWeight: '500' },
+    bulkSelect: { padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px', cursor: 'pointer' },
+    bulkBtn: { backgroundColor: '#2c3e50', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
+    cardCheck: { marginBottom: '8px' },
+    checkbox: { width: '16px', height: '16px', cursor: 'pointer' },
 };
