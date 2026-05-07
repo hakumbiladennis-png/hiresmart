@@ -116,11 +116,31 @@ export default function JobApplicants() {
                                     </div>
 
                                     <div style={styles.scoreSection}>
-                                        <h5 style={styles.sectionLabel}>Match Score</h5>
-                                        <div style={styles.scoreBar}>
-                                            <div style={{ ...styles.scoreBarFill, width: `${selectedApplicant.score}%` }} />
+                                        <h5 style={styles.sectionLabel}>Score Breakdown</h5>
+
+                                        <div style={styles.scoreRow}>
+                                            <span style={styles.scoreRowLabel}>Overall Match</span>
+                                            <span style={styles.scoreRowValue}>{selectedApplicant.score}%</span>
                                         </div>
-                                        <p style={styles.scoreText}>{selectedApplicant.score}% match</p>
+                                        <div style={styles.scoreBarWrap}>
+                                            <div style={{ ...styles.scoreBarFill, width: `${selectedApplicant.score}%`, backgroundColor: '#3498db' }} />
+                                        </div>
+
+                                        <div style={styles.scoreRow}>
+                                            <span style={styles.scoreRowLabel}>Skills Match</span>
+                                            <span style={styles.scoreRowValue}>{selectedApplicant.skill_score}%</span>
+                                        </div>
+                                        <div style={styles.scoreBarWrap}>
+                                            <div style={{ ...styles.scoreBarFill, width: `${selectedApplicant.skill_score}%`, backgroundColor: '#2ecc71' }} />
+                                        </div>
+
+                                        <div style={styles.scoreRow}>
+                                            <span style={styles.scoreRowLabel}>Experience Match</span>
+                                            <span style={styles.scoreRowValue}>{selectedApplicant.experience_score}%</span>
+                                        </div>
+                                        <div style={styles.scoreBarWrap}>
+                                            <div style={{ ...styles.scoreBarFill, width: `${selectedApplicant.experience_score}%`, backgroundColor: '#e67e22' }} />
+                                        </div>
                                     </div>
 
                                     <div style={styles.skillSection}>
@@ -206,11 +226,13 @@ const styles = {
     closeDetail: { background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#888' },
     detailSection: { marginBottom: '16px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' },
     detailItem: { margin: '0 0 6px', fontSize: '13px', color: '#555' },
-    scoreSection: { marginBottom: '16px' },
+    scoreSection: { marginBottom: '16px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px' },
     sectionLabel: { margin: '0 0 8px', color: '#2c3e50', fontSize: '13px', fontWeight: '500' },
-    scoreBar: { backgroundColor: '#eee', borderRadius: '4px', height: '8px', marginBottom: '4px' },
-    scoreBarFill: { backgroundColor: '#3498db', height: '8px', borderRadius: '4px' },
-    scoreText: { margin: 0, fontSize: '13px', color: '#555' },
+    scoreRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', marginTop: '10px' },
+    scoreRowLabel: { fontSize: '12px', color: '#666' },
+    scoreRowValue: { fontSize: '12px', fontWeight: '600', color: '#2c3e50' },
+    scoreBarWrap: { backgroundColor: '#eee', borderRadius: '4px', height: '8px', marginBottom: '4px' },
+    scoreBarFill: { height: '8px', borderRadius: '4px' },
     skillSection: { marginBottom: '16px' },
     coverSection: { marginBottom: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' },
     coverText: { margin: 0, fontSize: '13px', color: '#555', lineHeight: '1.6' },
