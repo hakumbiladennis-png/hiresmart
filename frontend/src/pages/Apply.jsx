@@ -17,6 +17,7 @@ export default function Apply() {
     const [yearsOfExperience, setYearsOfExperience] = useState(0);
     const [currentJobTitle, setCurrentJobTitle] = useState('');
     const [coverLetter, setCoverLetter] = useState('');
+    const [timeLeft, setTimeLeft] = useState('');
     const [cvFile, setCvFile] = useState(null);
 
     useEffect(() => {
@@ -30,7 +31,33 @@ export default function Apply() {
                 }
             });
     }, [publicId]);
-
+    useEffect(() => {
+    if (!job) return;
+    const calculateTimeLeft = () => {
+        const deadline = new Date(job.deadline);
+        deadline.setHours(23, 59, 59, 999);
+        const now = new Date();
+        const diff = deadline - now;
+        if (diff <= 0) {
+            setTimeLeft('Applications closed');
+            return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            if (days > 0) {
+                setTimeLeft(`${days} day${days !== 1 ? 's' : ''} ${hours}h ${minutes}m ${seconds}s remaining`);
+            } else if (hours > 0) {
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s remaining`);
+            } else {
+                setTimeLeft(`${minutes}m ${seconds}s remaining`);
+            }
+        };
+            calculateTimeLeft();
+            const timer = setInterval(calculateTimeLeft, 1000);
+            return () => clearInterval(timer);
+        }, [job]);
     const handleSubmit = async () => {
         if (!fullName || !email || !phone || !location || !educationLevel || !cvFile) {
             setError('Please fill in all required fields and upload your CV.');
@@ -106,6 +133,11 @@ export default function Apply() {
                         📍 {job.location || 'Location not specified'} &nbsp;|&nbsp;
                         📅 Apply before: {job.deadline}
                     </p>
+                    {timeLeft && (
+                        <div style={timeLeft === 'Applications closed' ? styles.countdownClosed : styles.countdown}>
+                            ⏰ {timeLeft}
+                            </div>
+                        )}
                     <p style={styles.jobDescription}>{job.description}</p>
                     <div style={styles.skillsRow}>
                         <span style={styles.skillsLabel}>Required Skills: </span>
@@ -236,4 +268,6 @@ const styles = {
     errorTitle: { color: '#e74c3c', marginBottom: '12px' },
     errorText: { color: '#666' },
     loadingCard: { maxWidth: '500px', margin: '100px auto', backgroundColor: 'white', padding: '48px', borderRadius: '16px', textAlign: 'center' },
+    countdown: { display: 'inline-block', marginTop: '8px', backgroundColor: '#eaf4fb', color: '#2980b9', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' },
+    countdownClosed: { display: 'inline-block', marginTop: '8px', backgroundColor: '#fadbd8', color: '#e74c3c', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' },
 };
