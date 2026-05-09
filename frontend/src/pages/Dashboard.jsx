@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import API from '../api';
 
 export default function Dashboard() {
@@ -45,6 +46,25 @@ export default function Dashboard() {
     } catch (err) {
         console.log('Stats error:', err);
     }
+    };
+    const getChartData = () => {
+        if (!stats) return { pieData: [], barData: [] };
+
+        const pieData = [
+            { name: 'Pending', value: stats.pending, color: '#f39c12' },
+            { name: 'Shortlisted', value: stats.shortlisted, color: '#2ecc71' },
+            { name: 'Rejected', value: stats.rejected || 0, color: '#e74c3c' },
+        ].filter(item => item.value > 0);
+
+        const barData = jobs
+            .filter(job => job.applicant_count > 0)
+            .map(job => ({
+                name: job.title.length > 15 ? job.title.substring(0, 15) + '...' : job.title,
+                score: job.top_score,
+                applicants: job.applicant_count,
+            }));
+
+        return { pieData, barData };
     };
     const createJob = async () => {
         if (!title || !description || !requiredSkills || !deadline) {
@@ -195,7 +215,53 @@ export default function Dashboard() {
             <p style={styles.statLabel}>Pending Review</p>
         </div>
     </div>
-)}
+                )}
+                {stats && jobs.length > 0 && (
+                    <div style={styles.chartsRow}>
+                        <div style={styles.chartCard}>
+                            <h4 style={styles.chartTitle}>Applications by Status</h4>
+                            {stats.total_applicants === 0 ? (
+                                <p style={styles.noData}>No applicants yet</p>
+                            ) : (
+                                <ResponsiveContainer width="100%" height={220}>
+                                    <PieChart>
+                                        <Pie
+                                            data={getChartData().pieData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={55}
+                                            outerRadius={85}
+                                            paddingAngle={3}
+                                            dataKey="value">
+                                            {getChartData().pieData.map((entry, index) => (
+                                                <Cell key={index} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value, name) => [value, name]} />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
+                        </div>
+
+                        <div style={styles.chartCard}>
+                            <h4 style={styles.chartTitle}>Top Score by Job Post</h4>
+                            {getChartData().barData.length === 0 ? (
+                                <p style={styles.noData}>No applicants yet</p>
+                            ) : (
+                                <ResponsiveContainer width="100%" height={220}>
+                                    <BarChart data={getChartData().barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                                        <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                        <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
+                                        <Tooltip formatter={(value) => [`${value}%`, 'Top Score']} />
+                                        <Legend />
+                                        <Bar dataKey="score" name="Top Score %" fill="#3498db" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
+                        </div>
+                    </div>
+                )}
                 <div style={styles.topBar}>
                     <h3 style={styles.sectionTitle}>Your Job Posts</h3>
                     <button style={styles.newJobBtn} onClick={() => setShowForm(!showForm)}>
@@ -350,4 +416,8 @@ const styles = {
     statLabel: { margin: 0, fontSize: '12px', color: '#888', fontWeight: '500' },
     editBtn: { backgroundColor: '#f39c12', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
     cancelEditBtn: { backgroundColor: '#95a5a6', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' },
+    chartsRow: { display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' },
+    chartCard: { flex: 1, minWidth: '280px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' },
+    chartTitle: { margin: '0 0 16px', color: '#2c3e50', fontSize: '15px', fontWeight: '600' },
+    noData: { color: '#888', textAlign: 'center', padding: '40px 0', fontSize: '14px' },
 };
