@@ -10,6 +10,8 @@ export default function JobApplicants() {
     const [minScore, setMinScore] = useState(0);
     const [selectedIds, setSelectedIds] = useState([]);
     const [bulkAction, setBulkAction] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const navigate = useNavigate();
 
     useEffect(() => { fetchApplicants(); }, []);
@@ -134,7 +136,12 @@ const applyBulkAction = async () => {
         return styles.badgePending;
     };
 
-    const filteredApplicants = jobData ? jobData.applicants.filter(a => a.score >= minScore) : [];
+  const filteredApplicants = jobData ? jobData.applicants.filter(a => a.score >= minScore) : [];
+  const totalPages = Math.ceil(filteredApplicants.length / itemsPerPage);
+  const paginatedApplicants = filteredApplicants.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+);
 
     return (
         <div style={styles.page}>
@@ -157,7 +164,7 @@ const applyBulkAction = async () => {
                                 <div>
                                     <h3 style={styles.jobTitle}>{jobData.job_title}</h3>
                                     <p style={styles.jobMeta}>
-                                        {filteredApplicants.length} of {jobData.applicants.length} applicant{jobData.applicants.length !== 1 ? 's' : ''} — ranked by match score
+                                        Showing {Math.min(currentPage * itemsPerPage, filteredApplicants.length)} of {filteredApplicants.length} applicant
                                     </p>
                                 </div>
                                 <div style={styles.filterBox}>
@@ -168,7 +175,7 @@ const applyBulkAction = async () => {
                                             min="0"
                                             max="100"
                                             value={minScore}
-                                            onChange={e => setMinScore(Number(e.target.value))}
+                                            onChange={e => { setMinScore(Number(e.target.value)); setCurrentPage(1); }}
                                             style={styles.slider}
                                         />
                                         <span style={styles.filterValue}>{minScore}%</span>
@@ -215,9 +222,35 @@ const applyBulkAction = async () => {
                                 {filteredApplicants.length === 0 && (
                                     <div style={styles.empty}>
                                         {minScore > 0 ? `No applicants above ${minScore}% match score.` : 'No applicants yet.'}
+                                        {totalPages > 1 && (
+                                            <div style={styles.pagination}>
+                                                <button
+                                                    style={currentPage === 1 ? styles.pagesBtnDisabled : styles.pagesBtn}
+                                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                                    disabled={currentPage === 1}>
+                                                    ← Previous
+                                                </button>
+                                                <div style={styles.pageNumbers}>
+                                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                                        <button
+                                                            key={page}
+                                                            style={currentPage === page ? styles.pageActive : styles.pageNum}
+                                                            onClick={() => setCurrentPage(page)}>
+                                                            {page}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <button
+                                                    style={currentPage === totalPages ? styles.pagesBtnDisabled : styles.pagesBtn}
+                                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                                    disabled={currentPage === totalPages}>
+                                                    Next →
+                                                </button>
+                                            </div>
+)}
                                     </div>
                                 )}
-                                {filteredApplicants.map((a) => (
+                                {paginatedApplicants.map((a) => (
                                     <div
                                         key={a.id}
                                         style={{
@@ -418,4 +451,10 @@ const styles = {
     checkbox: { width: '16px', height: '16px', cursor: 'pointer' },
     headerBtns: { display: 'flex', gap: '8px', alignItems: 'center' },
     printBtn: { backgroundColor: '#8e44ad', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' },
+    pagination: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '16px', padding: '16px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+    pageNumbers: { display: 'flex', gap: '6px' },
+    pagesBtn: { backgroundColor: '#3498db', color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
+    pagesBtnDisabled: { backgroundColor: '#ddd', color: '#999', padding: '8px 16px', borderRadius: '6px', border: 'none', cursor: 'not-allowed', fontSize: '13px', fontWeight: '500' },
+    pageNum: { backgroundColor: 'white', color: '#2c3e50', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer', fontSize: '13px' },
+    pageActive: { backgroundColor: '#2c3e50', color: 'white', padding: '8px 12px', borderRadius: '6px', border: '1px solid #2c3e50', cursor: 'pointer', fontSize: '13px', fontWeight: '600' },
 };
