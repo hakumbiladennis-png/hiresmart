@@ -94,9 +94,26 @@ class JobPostDetailView(APIView):
     def patch(self, request, job_id):
         try:
             job = JobPost.objects.get(id=job_id, recruiter=request.user)
+            job.title = request.data.get('title', job.title)
+            job.description = request.data.get('description', job.description)
+            job.required_skills = request.data.get('required_skills', job.required_skills)
+            job.required_experience_years = request.data.get('required_experience_years', job.required_experience_years)
+            job.location = request.data.get('location', job.location)
+            job.deadline = request.data.get('deadline', job.deadline)
             job.status = request.data.get('status', job.status)
             job.save()
-            return Response({'message': 'Job updated successfully'})
+
+            job_text = f"{job.title} {job.description} {job.required_skills}"
+            bias_warnings = detect_bias(job_text)
+
+            response_data = {'message': 'Job updated successfully'}
+            if bias_warnings:
+                response_data['bias_warnings'] = bias_warnings
+                response_data['bias_detected'] = True
+            else:
+                response_data['bias_detected'] = False
+
+            return Response(response_data)
         except JobPost.DoesNotExist:
             return Response({'error': 'Job not found'}, status=404)
 

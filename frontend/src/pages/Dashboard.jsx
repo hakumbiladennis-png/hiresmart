@@ -16,6 +16,13 @@ export default function Dashboard() {
     const [showBiasModal, setShowBiasModal] = useState(false);
     const [messageType, setMessageType] = useState('success');
     const [stats, setStats] = useState(null);
+    const [editingJob, setEditingJob] = useState(null);
+    const [editTitle, setEditTitle] = useState('');
+    const [editDescription, setEditDescription] = useState('');
+    const [editSkills, setEditSkills] = useState('');
+    const [editExperience, setEditExperience] = useState(0);
+    const [editLocation, setEditLocation] = useState('');
+    const [editDeadline, setEditDeadline] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -83,7 +90,43 @@ export default function Dashboard() {
         navigator.clipboard.writeText(link);
         alert('Application link copied! You can now share it on WhatsApp, Facebook, etc.');
     };
+    const startEdit = (job) => {
+    setEditingJob(job.id);
+    setEditTitle(job.title);
+    setEditDescription(job.description || '');
+    setEditSkills(job.required_skills || '');
+    setEditExperience(job.required_experience_years || 0);
+    setEditLocation(job.location || '');
+    setEditDeadline(job.deadline || '');
+};
 
+    const cancelEdit = () => {
+        setEditingJob(null);
+    };
+
+    const saveEdit = async (jobId) => {
+        try {
+            const res = await API.patch(`jobs/${jobId}/`, {
+                title: editTitle,
+                description: editDescription,
+                required_skills: editSkills,
+                required_experience_years: editExperience,
+                location: editLocation,
+                deadline: editDeadline,
+            });
+            if (res.data.bias_detected) {
+                setBiasWarnings(res.data.bias_warnings);
+                setShowBiasModal(true);
+            }
+            setMessage('Job updated successfully!');
+            setMessageType('success');
+            setEditingJob(null);
+            fetchJobs();
+        } catch (err) {
+            setMessage('Failed to update job. Please try again.');
+            setMessageType('error');
+        }
+    };
     const handleLogout = () => {
         localStorage.removeItem('token');
         navigate('/');
@@ -195,35 +238,64 @@ export default function Dashboard() {
 
                 {jobs.map(job => (
                     <div key={job.id} style={styles.jobCard}>
-                        <div style={styles.jobTop}>
+                        {editingJob === job.id ? (
                             <div>
-                                <h4 style={styles.jobTitle}>{job.title}</h4>
-                                <p style={styles.jobMeta}>
-                                    📍 {job.location || 'Location not specified'} &nbsp;|&nbsp;
-                                    📅 Deadline: {job.deadline} &nbsp;|&nbsp;
-                                    👥 {job.applicant_count} applicant{job.applicant_count !== 1 ? 's' : ''}
-                                    {job.applicant_count > 0 && (
-                                 <span> &nbsp;|&nbsp; 🏆 Top Score: <strong>{job.top_score}%</strong></span>
-                                 )}
-                                </p>
+                                <h4 style={styles.formTitle}>Edit Job Post</h4>
+                                <input style={styles.input} placeholder="Job Title *" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
+                                <textarea style={styles.textarea} placeholder="Job Description *" value={editDescription} onChange={e => setEditDescription(e.target.value)} />
+                                <input style={styles.input} placeholder="Required Skills *" value={editSkills} onChange={e => setEditSkills(e.target.value)} />
+                                <input style={styles.input} placeholder="Location" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
+                                <div style={styles.row}>
+                                    <div style={styles.halfField}>
+                                        <label style={styles.label}>Years of Experience *</label>
+                                        <input style={styles.input} type="number" min="0" value={editExperience} onChange={e => setEditExperience(e.target.value)} />
+                                    </div>
+                                    <div style={styles.halfField}>
+                                        <label style={styles.label}>Application Deadline *</label>
+                                        <input style={styles.input} type="date" value={editDeadline} onChange={e => setEditDeadline(e.target.value)} />
+                                    </div>
+                                </div>
+                                <div style={styles.jobActions}>
+                                    <button style={styles.submitBtn} onClick={() => saveEdit(job.id)}>Save Changes</button>
+                                    <button style={styles.cancelEditBtn} onClick={cancelEdit}>Cancel</button>
+                                </div>
                             </div>
-                            <span style={job.status === 'open' ? styles.badgeOpen : styles.badgeClosed}>
-                                {job.status === 'open' ? 'Open' : 'Closed'}
-                            </span>
-                        </div>
-                        <div style={styles.jobActions}>
-                            <button style={styles.actionBtn} onClick={() => navigate(`/jobs/${job.id}`)}>
-                                View Applicants
-                            </button>
-                            <button style={styles.copyBtn} onClick={() => copyLink(job.public_id)}>
-                                Copy Application Link
-                            </button>
-                            <button
-                                style={job.status === 'open' ? styles.closeBtn : styles.openBtn}
-                                onClick={() => toggleJobStatus(job.id, job.status)}>
-                                {job.status === 'open' ? 'Close Job' : 'Reopen Job'}
-                            </button>
-                        </div>
+                        ) : (
+                            <>
+                                <div style={styles.jobTop}>
+                                    <div>
+                                        <h4 style={styles.jobTitle}>{job.title}</h4>
+                                        <p style={styles.jobMeta}>
+                                            📍 {job.location || 'Location not specified'} &nbsp;|&nbsp;
+                                            📅 Deadline: {job.deadline} &nbsp;|&nbsp;
+                                            👥 {job.applicant_count} applicant{job.applicant_count !== 1 ? 's' : ''}
+                                            {job.applicant_count > 0 && (
+                                                <span> &nbsp;|&nbsp; 🏆 Top Score: <strong>{job.top_score}%</strong></span>
+                                            )}
+                                        </p>
+                                    </div>
+                                    <span style={job.status === 'open' ? styles.badgeOpen : styles.badgeClosed}>
+                                        {job.status === 'open' ? 'Open' : 'Closed'}
+                                    </span>
+                                </div>
+                                <div style={styles.jobActions}>
+                                    <button style={styles.actionBtn} onClick={() => navigate(`/jobs/${job.id}`)}>
+                                        View Applicants
+                                    </button>
+                                    <button style={styles.copyBtn} onClick={() => copyLink(job.public_id)}>
+                                        Copy Application Link
+                                    </button>
+                                    <button style={styles.editBtn} onClick={() => startEdit(job)}>
+                                        ✏️ Edit Job
+                                    </button>
+                                    <button
+                                        style={job.status === 'open' ? styles.closeBtn : styles.openBtn}
+                                        onClick={() => toggleJobStatus(job.id, job.status)}>
+                                        {job.status === 'open' ? 'Close Job' : 'Reopen Job'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 ))}
             </div>
@@ -276,4 +348,6 @@ const styles = {
     statCard: { flex: 1, minWidth: '120px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' },
     statNum: { margin: '0 0 4px', fontSize: '28px', fontWeight: '700', color: '#2c3e50' },
     statLabel: { margin: 0, fontSize: '12px', color: '#888', fontWeight: '500' },
+    editBtn: { backgroundColor: '#f39c12', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' },
+    cancelEditBtn: { backgroundColor: '#95a5a6', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' },
 };
