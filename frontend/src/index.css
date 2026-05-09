@@ -1,122 +1,19 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+:ro* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
-}
-* {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body.dark-mode {
     background-color: #1a1a2e !important;
     color: #eee !important;
 }
+
 body.dark-mode div,
 body.dark-mode header,
 body.dark-mode p,
@@ -130,11 +27,6 @@ body.dark-mode label {
     color: #eee !important;
 }
 
-body.dark-mode [style*="backgroundColor: white"],
-body.dark-mode [style*="background-color: white"] {
-    background-color: #16213e !important;
-}
-
 body.dark-mode input,
 body.dark-mode textarea,
 body.dark-mode select {
@@ -143,6 +35,259 @@ body.dark-mode select {
     border-color: #2a2a6a !important;
 }
 
-body.dark-mode button {
-    filter: brightness(0.9);
+/* ══════════════════════════════════
+   DESKTOP (1024px and above)
+   Default styles — already handled
+   by inline styles in components
+══════════════════════════════════ */
+
+/* ══════════════════════════════════
+   TABLET (768px to 1023px)
+══════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    /* Reduce max width for tablet */
+    div[style*="maxWidth: '900px'"],
+    div[style*="maxWidth: '1100px'"] {
+        max-width: 100% !important;
+        padding: 0 20px !important;
+    }
+
+    /* Stats row - 3 cards per row on tablet */
+    div[style*="statsRow"] {
+        flex-wrap: wrap !important;
+    }
+
+    div[style*="statCard"] {
+        min-width: calc(33% - 12px) !important;
+        flex: unset !important;
+    }
+
+    /* Applicants layout - stack detail panel below list */
+    div[style*="display: flex"][style*="gap: 24px"][style*="alignItems: flex-start"] {
+        flex-direction: column !important;
+    }
+
+    div[style*="width: 360px"] {
+        width: 100% !important;
+        position: relative !important;
+        top: unset !important;
+    }
+
+    /* Job card actions wrap */
+    div[style*="jobActions"] {
+        flex-wrap: wrap !important;
+    }
+
+    /* Filter box full width */
+    div[style*="minWidth: '260px'"] {
+        min-width: 100% !important;
+    }
+
+    /* Job header top stack */
+    div[style*="jobHeaderTop"] {
+        flex-direction: column !important;
+    }
+
+    /* Apply page form rows */
+    div[style*="display: flex"][style*="gap: 16px"] {
+        flex-wrap: wrap !important;
+    }
+
+    div[style*="display: flex"][style*="gap: 16px"] > div[style*="flex: 1"] {
+        min-width: calc(50% - 8px) !important;
+    }
+}
+
+/* ══════════════════════════════════
+   MOBILE (767px and below)
+══════════════════════════════════ */
+@media (max-width: 767px) {
+
+    /* General container padding */
+    div[style*="maxWidth: '900px'"],
+    div[style*="maxWidth: '1100px'"],
+    div[style*="maxWidth: '800px'"] {
+        max-width: 100% !important;
+        padding: 0 12px !important;
+        margin: 16px auto !important;
+    }
+
+    /* Header - stack logo and buttons */
+    div[style*="padding: '16px 32px'"] {
+        padding: 12px 16px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    /* Stats row - 2 cards per row on mobile */
+    div[style*="statsRow"] {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    div[style*="statCard"] {
+        min-width: calc(50% - 6px) !important;
+        flex: unset !important;
+        padding: 14px !important;
+    }
+
+    div[style*="statNum"] {
+        font-size: 22px !important;
+    }
+
+    /* Job cards */
+    div[style*="jobCard"] {
+        padding: 14px !important;
+    }
+
+    /* Job actions - wrap all buttons */
+    div[style*="jobActions"] {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+
+    div[style*="jobActions"] button {
+        flex: 1 !important;
+        min-width: calc(50% - 4px) !important;
+        text-align: center !important;
+    }
+
+    /* Form rows stack vertically */
+    div[style*="display: flex"][style*="gap: 16px"] {
+        flex-direction: column !important;
+    }
+
+    div[style*="display: flex"][style*="gap: 16px"] > div {
+        width: 100% !important;
+        flex: unset !important;
+    }
+
+    /* Applicants layout - full stack */
+    div[style*="display: flex"][style*="gap: 24px"][style*="alignItems: flex-start"] {
+        flex-direction: column !important;
+    }
+
+    div[style*="width: 360px"] {
+        width: 100% !important;
+        position: relative !important;
+        top: unset !important;
+    }
+
+    /* Filter and bulk bar */
+    div[style*="bulkBar"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    div[style*="bulkRight"] {
+        flex-wrap: wrap !important;
+        width: 100% !important;
+    }
+
+    div[style*="jobHeaderTop"] {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    div[style*="minWidth: '260px'"] {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Pagination */
+    div[style*="pagination"] {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        justify-content: center !important;
+    }
+
+    div[style*="pageNumbers"] {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    /* Apply page */
+    div[style*="maxWidth: '800px'"] {
+        padding: 0 12px 24px !important;
+    }
+
+    div[style*="card"][style*="width: '420px'"],
+    div[style*="width: '360px'"] {
+        width: 100% !important;
+        padding: 20px !important;
+    }
+
+    /* Buttons full width on small screens */
+    button[style*="width: '100%'"] {
+        width: 100% !important;
+    }
+
+    /* Score breakdown bars */
+    div[style*="scoreBarWrap"] {
+        height: 10px !important;
+    }
+
+    /* Header buttons */
+    div[style*="headerBtns"] {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+
+    div[style*="headerBtns"] button {
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+    }
+
+    /* Bias modal */
+    div[style*="modal"][style*="width: '480px'"] {
+        width: 95% !important;
+        padding: 20px !important;
+    }
+
+    /* Login and register cards */
+    div[style*="width: '360px'"] {
+        width: 95% !important;
+    }
+
+    /* Dark mode toggle button */
+    div[style*="bottom: '24px'"] {
+        bottom: 12px !important;
+        right: 12px !important;
+    }
+}
+
+/* ══════════════════════════════════
+   SMALL PHONES (480px and below)
+══════════════════════════════════ */
+@media (max-width: 480px) {
+
+    h2 { font-size: 18px !important; }
+    h3 { font-size: 16px !important; }
+    h4 { font-size: 14px !important; }
+
+    /* Stats - single column on very small screens */
+    div[style*="statCard"] {
+        min-width: 100% !important;
+    }
+
+    /* Action buttons single column */
+    div[style*="jobActions"] button {
+        min-width: 100% !important;
+    }
+
+    /* Score numbers smaller */
+    div[style*="scoreNum"] {
+        font-size: 16px !important;
+    }
+
+    /* Applicant card */
+    div[style*="cardTop"] {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    div[style*="scoreBox"] {
+        width: fit-content !important;
+    }
 }

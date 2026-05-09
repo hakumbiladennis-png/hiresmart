@@ -305,10 +305,10 @@ export default function Dashboard() {
 
 const styles = {
     page: { backgroundColor: '#f0f2f5', minHeight: '100vh' },
-    header: { backgroundColor: 'white', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' },
+    header: { backgroundColor: 'white', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', flexWrap: 'wrap', gap: '8px' },
     logo: { color: '#2c3e50', margin: 0 },
     logoutBtn: { backgroundColor: '#e74c3c', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer' },
-    container: { maxWidth: '900px', margin: '32px auto', padding: '0 24px' },
+    container: { maxWidth: '900px', margin: '32px auto', padding: '0 16px' },
     topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
     sectionTitle: { margin: 0, color: '#2c3e50' },
     newJobBtn: { backgroundColor: '#3498db', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' },
