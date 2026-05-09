@@ -148,6 +148,15 @@ class ApplyView(APIView):
             cv_file = request.FILES.get('cv_file')
             if not cv_file:
                 return Response({'error': 'Please upload your CV'}, status=400)
+            if cv_file.size > 5 * 1024 * 1024:
+                return Response({'error': 'CV file size must be under 5MB'}, status=400)
+
+            allowed_types = [
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ]
+            if cv_file.content_type not in allowed_types:
+                return Response({'error': 'Only PDF and DOCX files are allowed'}, status=400)
 
             extracted_text = extract_text_from_file(cv_file)
             cv_file.seek(0)

@@ -63,6 +63,10 @@ export default function Apply() {
             setError('Please fill in all required fields and upload your CV.');
             return;
         }
+        if (cvFile && cvFile.size > 5 * 1024 * 1024) {
+            setError('CV file size must be under 5MB. Please compress your file and try again.');
+            return;
+        }
         setLoading(true);
         setError('');
         const formData = new FormData();
