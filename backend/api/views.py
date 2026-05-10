@@ -165,13 +165,14 @@ class ApplyView(APIView):
             cv_file = request.FILES.get('cv_file')
             if not cv_file:
                 return Response({'error': 'Please upload your CV'}, status=400)
+
             if cv_file.size > 5 * 1024 * 1024:
                 return Response({'error': 'CV file size must be under 5MB'}, status=400)
 
             allowed_types = [
                 'application/pdf',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                ]
+            ]
             if cv_file.content_type not in allowed_types:
                 return Response({'error': 'Only PDF and DOCX files are allowed'}, status=400)
 
@@ -303,6 +304,7 @@ class ExportApplicantsView(APIView):
             return response
         except JobPost.DoesNotExist:
             return Response({'error': 'Job not found'}, status=404)
+
 class DashboardStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -331,3 +333,31 @@ class DashboardStatsView(APIView):
             'pending': pending,
             'avg_score': avg_score,
         })
+
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if not username or not current_password or not new_password or not confirm_password:
+            return Response({'error': 'All fields are required'}, status=400)
+
+        if new_password != confirm_password:
+            return Response({'error': 'New passwords do not match'}, status=400)
+
+        if len(new_password) < 6:
+            return Response({'error': 'New password must be at least 6 characters'}, status=400)
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.check_password(current_password):
+                return Response({'error': 'Current password is incorrect'}, status=400)
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Password changed successfully! You can now login with your new password.'}, status=200)
+        except User.DoesNotExist:
+            return Response({'error': 'No account found with that username'}, status=404)

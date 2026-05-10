@@ -41,7 +41,10 @@ export default function Login() {
                     Login
                 </button>
                 <p style={styles.link}>
-                    Don't have an account? <Link to="/register">Register</Link>
+                     Don't have an account? <Link to="/register">Register</Link>
+                </p>
+                <p style={styles.link}>
+                    Forgot your password? <Link to="/reset-password">Reset it here</Link>
                 </p>
             </div>
         </div>

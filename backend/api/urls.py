@@ -3,13 +3,16 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     RegisterView, JobPostView, JobPostDetailView,
     PublicJobView, ApplyView, ApplicantListView,
-    ApplicantDetailView, ExportApplicantsView, DashboardStatsView
+    ApplicantDetailView, ExportApplicantsView, DashboardStatsView,
+    DashboardStatsView, PasswordResetView
+
 )
 
 urlpatterns = [
     path('register/', RegisterView.as_view()),
     path('login/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
+    path('password-reset/', PasswordResetView.as_view()),
     path('jobs/', JobPostView.as_view()),
     path('jobs/<int:job_id>/', JobPostDetailView.as_view()),
     path('jobs/<int:job_id>/applicants/', ApplicantListView.as_view()),

@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import JobApplicants from './pages/JobApplicants';
+import PasswordReset from './pages/PasswordReset';
 import Apply from './pages/Apply';
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/jobs/:jobId" element={<JobApplicants />} />
                 <Route path="/apply/:publicId" element={<Apply />} />
+                <Route path="/reset-password" element={<PasswordReset />} />
             </Routes>
         </Router>
     );
