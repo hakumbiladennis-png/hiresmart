@@ -1,4 +1,4 @@
-:ro* {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -9,13 +9,18 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ══════════════════════════════════
+   DARK MODE
+══════════════════════════════════ */
 body.dark-mode {
     background-color: #1a1a2e !important;
     color: #eee !important;
 }
 
-body.dark-mode div,
-body.dark-mode header,
+body.dark-mode div {
+    color: #eee;
+}
+
 body.dark-mode p,
 body.dark-mode h1,
 body.dark-mode h2,
@@ -35,35 +40,35 @@ body.dark-mode select {
     border-color: #2a2a6a !important;
 }
 
-/* ══════════════════════════════════
-   DESKTOP (1024px and above)
-   Default styles — already handled
-   by inline styles in components
-══════════════════════════════════ */
+body.dark-mode [style*="backgroundColor: 'white'"],
+body.dark-mode [style*="backgroundColor: white"] {
+    background-color: #16213e !important;
+}
+
+body.dark-mode [style*="background-color: white"] {
+    background-color: #16213e !important;
+}
 
 /* ══════════════════════════════════
    TABLET (768px to 1023px)
 ══════════════════════════════════ */
 @media (min-width: 768px) and (max-width: 1023px) {
 
-    /* Reduce max width for tablet */
     div[style*="maxWidth: '900px'"],
     div[style*="maxWidth: '1100px'"] {
         max-width: 100% !important;
         padding: 0 20px !important;
     }
 
-    /* Stats row - 3 cards per row on tablet */
     div[style*="statsRow"] {
         flex-wrap: wrap !important;
     }
 
     div[style*="statCard"] {
         min-width: calc(33% - 12px) !important;
-        flex: unset !important;
+        flex: 1 1 calc(33% - 12px) !important;
     }
 
-    /* Applicants layout - stack detail panel below list */
     div[style*="display: flex"][style*="gap: 24px"][style*="alignItems: flex-start"] {
         flex-direction: column !important;
     }
@@ -74,28 +79,16 @@ body.dark-mode select {
         top: unset !important;
     }
 
-    /* Job card actions wrap */
     div[style*="jobActions"] {
         flex-wrap: wrap !important;
     }
 
-    /* Filter box full width */
     div[style*="minWidth: '260px'"] {
         min-width: 100% !important;
     }
 
-    /* Job header top stack */
     div[style*="jobHeaderTop"] {
         flex-direction: column !important;
-    }
-
-    /* Apply page form rows */
-    div[style*="display: flex"][style*="gap: 16px"] {
-        flex-wrap: wrap !important;
-    }
-
-    div[style*="display: flex"][style*="gap: 16px"] > div[style*="flex: 1"] {
-        min-width: calc(50% - 8px) !important;
     }
 }
 
@@ -104,7 +97,6 @@ body.dark-mode select {
 ══════════════════════════════════ */
 @media (max-width: 767px) {
 
-    /* General container padding */
     div[style*="maxWidth: '900px'"],
     div[style*="maxWidth: '1100px'"],
     div[style*="maxWidth: '800px'"] {
@@ -113,14 +105,13 @@ body.dark-mode select {
         margin: 16px auto !important;
     }
 
-    /* Header - stack logo and buttons */
     div[style*="padding: '16px 32px'"] {
         padding: 12px 16px !important;
         flex-wrap: wrap !important;
         gap: 8px !important;
     }
 
-    /* Stats row - 2 cards per row on mobile */
+    /* Stats - 2 per row on mobile */
     div[style*="statsRow"] {
         flex-wrap: wrap !important;
         gap: 10px !important;
@@ -128,7 +119,7 @@ body.dark-mode select {
 
     div[style*="statCard"] {
         min-width: calc(50% - 6px) !important;
-        flex: unset !important;
+        flex: 1 1 calc(50% - 6px) !important;
         padding: 14px !important;
     }
 
@@ -136,24 +127,20 @@ body.dark-mode select {
         font-size: 22px !important;
     }
 
-    /* Job cards */
     div[style*="jobCard"] {
         padding: 14px !important;
     }
 
-    /* Job actions - wrap all buttons */
     div[style*="jobActions"] {
         flex-wrap: wrap !important;
         gap: 6px !important;
     }
 
     div[style*="jobActions"] button {
-        flex: 1 !important;
-        min-width: calc(50% - 4px) !important;
+        flex: 1 1 calc(50% - 4px) !important;
         text-align: center !important;
     }
 
-    /* Form rows stack vertically */
     div[style*="display: flex"][style*="gap: 16px"] {
         flex-direction: column !important;
     }
@@ -163,7 +150,6 @@ body.dark-mode select {
         flex: unset !important;
     }
 
-    /* Applicants layout - full stack */
     div[style*="display: flex"][style*="gap: 24px"][style*="alignItems: flex-start"] {
         flex-direction: column !important;
     }
@@ -174,7 +160,6 @@ body.dark-mode select {
         top: unset !important;
     }
 
-    /* Filter and bulk bar */
     div[style*="bulkBar"] {
         flex-direction: column !important;
         align-items: flex-start !important;
@@ -195,7 +180,6 @@ body.dark-mode select {
         width: 100% !important;
     }
 
-    /* Pagination */
     div[style*="pagination"] {
         flex-wrap: wrap !important;
         gap: 8px !important;
@@ -207,28 +191,19 @@ body.dark-mode select {
         justify-content: center !important;
     }
 
-    /* Apply page */
     div[style*="maxWidth: '800px'"] {
         padding: 0 12px 24px !important;
     }
 
-    div[style*="card"][style*="width: '420px'"],
-    div[style*="width: '360px'"] {
-        width: 100% !important;
-        padding: 20px !important;
+    /* Charts stack on mobile */
+    div[style*="chartsRow"] {
+        flex-direction: column !important;
     }
 
-    /* Buttons full width on small screens */
-    button[style*="width: '100%'"] {
-        width: 100% !important;
+    div[style*="chartCard"] {
+        min-width: 100% !important;
     }
 
-    /* Score breakdown bars */
-    div[style*="scoreBarWrap"] {
-        height: 10px !important;
-    }
-
-    /* Header buttons */
     div[style*="headerBtns"] {
         flex-wrap: wrap !important;
         gap: 6px !important;
@@ -239,18 +214,11 @@ body.dark-mode select {
         padding: 6px 10px !important;
     }
 
-    /* Bias modal */
     div[style*="modal"][style*="width: '480px'"] {
         width: 95% !important;
         padding: 20px !important;
     }
 
-    /* Login and register cards */
-    div[style*="width: '360px'"] {
-        width: 95% !important;
-    }
-
-    /* Dark mode toggle button */
     div[style*="bottom: '24px'"] {
         bottom: 12px !important;
         right: 12px !important;
@@ -266,28 +234,18 @@ body.dark-mode select {
     h3 { font-size: 16px !important; }
     h4 { font-size: 14px !important; }
 
-    /* Stats - single column on very small screens */
     div[style*="statCard"] {
         min-width: 100% !important;
+        flex: 1 1 100% !important;
     }
 
-    /* Action buttons single column */
     div[style*="jobActions"] button {
         min-width: 100% !important;
+        flex: 1 1 100% !important;
     }
 
-    /* Score numbers smaller */
-    div[style*="scoreNum"] {
-        font-size: 16px !important;
-    }
-
-    /* Applicant card */
     div[style*="cardTop"] {
         flex-direction: column !important;
         gap: 8px !important;
-    }
-
-    div[style*="scoreBox"] {
-        width: fit-content !important;
     }
 }

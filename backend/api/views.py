@@ -211,10 +211,22 @@ class ApplicantListView(APIView):
             applicants = job.applicants.order_by('-similarity_score')
             data = []
             for i, a in enumerate(applicants):
-                matched = a.matched_skills.split(',') if a.matched_skills else []
-                matched = [s for s in matched if s.strip()]
-                total_skills = [s.strip() for s in job.required_skills.split(',')]
-                skill_score = round((len(matched) / len(total_skills)) * 100, 1) if total_skills else 0
+                matched_raw = a.matched_skills.split(',') if a.matched_skills else []
+                matched_raw = [s.strip() for s in matched_raw if s.strip()]
+
+                total_skills_raw = [s.strip() for s in job.required_skills.split(',') if s.strip()]
+
+                matched_lower = [s.lower() for s in matched_raw]
+                total_lower = [s.lower() for s in total_skills_raw]
+
+                matched_count = len(set(matched_lower) & set(total_lower))
+                total_count = len(set(total_lower))
+
+                skill_score = round((matched_count / total_count) * 100, 1) if total_count > 0 else 0
+                skill_score = min(skill_score, 100.0)
+
+                matched = list(set(matched_lower) & set(total_lower))
+                total_skills = list(set(total_lower))
 
                 if job.required_experience_years > 0:
                     exp_score = min((a.years_of_experience / job.required_experience_years) * 100, 100)
